@@ -10,6 +10,7 @@ pandas==2.2.3
 numpy==1.26.4
 
 # Database & ORM
+psycopg2==2.9.11
 SQLAlchemy==2.0.35
 alembic==1.13.2    # for DB migrations (optional but recommended)
 
