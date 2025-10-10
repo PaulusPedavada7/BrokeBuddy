@@ -1,0 +1,24 @@
+#DEPENEDENCIES
+# Core backend framework
+fastapi==0.115.2
+uvicorn[standard]==0.31.0
+
+# PDF parsing and data handling
+pdfplumber==0.11.4
+pandas==2.2.3
+numpy==1.26.4
+
+# Database & ORM
+SQLAlchemy==2.0.35
+alembic==1.13.2    # for DB migrations (optional but recommended)
+
+# Optional but recommended
+python-dotenv==1.0.1    # load env vars (for DB URLs, secrets, etc.)
+pydantic==2.9.2         # data validation models for FastAPI
+
+# Development tools
+black==24.8.0           # code formatter
+flake8==7.1.1           # linting
+pytest==8.3.3           # testing
+
+
