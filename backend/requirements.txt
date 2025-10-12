@@ -22,5 +22,3 @@ pydantic==2.9.2         # data validation models for FastAPI
 black==24.8.0           # code formatter
 flake8==7.1.1           # linting
 pytest==8.3.3           # testing
-
-
