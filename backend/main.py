@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os, time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title = "Broke Buddy API")
 
@@ -16,12 +20,16 @@ app.add_middleware(
 def read_root():
     return {"message": "Hello from FastAPI!"}
 
-@app.post("/send")
-async def send_message(request: Request):
-    # Read JSON body directly
-    data = await request.json()
-    name = data.get("name", "Unknown")
-    message = data.get("message", "")
+def watch_folder():
+    seen = set(os.listdir('STATEMENTS_FOLDER'))
+    while True:
+        current = set(os.listdir('STATEMENTS_FOLDER'))
+        new_files = current - seen
+        for file in new_files:
+            parser(os.path.join('STATEMENTS_FOLDER', file))
+        seen = current
+        time.sleep(10)
 
-    print(f"Received from React: name={name}, message={message}")
-    return {"reply": f"Got your message, {name}!"}
+def parser ():
+    print('hello')
+

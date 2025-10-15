@@ -5,7 +5,8 @@ uvicorn[standard]==0.31.0
 
 # PDF parsing and data handling
 watchdog==2.1.5
-pdfplumber==0.11.4
+pdfplumber==0.11.4\
+0987    
 pandas==2.2.3
 numpy==1.26.4
 
