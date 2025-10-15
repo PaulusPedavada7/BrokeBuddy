@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os, time
 from dotenv import load_dotenv
+import pdfplumber
+import re
 
 load_dotenv()
+STATEMENTS_FOLDER = os.getenv("STATEMENTS_FOLDER")
 
 app = FastAPI(title = "Broke Buddy API")
 
@@ -21,20 +24,17 @@ def read_root():
     return {"message": "Hello from FastAPI!"}
 
 def watch_folder():
-    seen = set(os.listdir('STATEMENTS_FOLDER'))
+    print()
+    seen = set(os.listdir(STATEMENTS_FOLDER))
     while True:
-        current = set(os.listdir('STATEMENTS_FOLDER'))
+        current = set(os.listdir(STATEMENTS_FOLDER))
         new_files = current - seen
         for file in new_files:
-            parser(os.path.join('STATEMENTS_FOLDER', file))
+            parser(os.path.join(STATEMENTS_FOLDER, file))
         seen = current
         time.sleep(10)
 
-def parser (pdf_file):
-    print('hello')
-
-import pdfplumber
-import re
+# isaac = 'bank_statements\IsaacExample.pdf'
 
 pattern = re.compile(
     r"^(\d{2}/\d{2}/\d{2})\s+(.*?)\s+(?:CO\s+)?([-()0-9,]+\.\d{2})$",
@@ -112,8 +112,7 @@ def parse_statement_blocks(pdf_path):
 
 
 # Example usage
-if __name__ == "__main__":
-    pdf_file = "../eStatements/midSeptTestStmnt.pdf"
+def parser(pdf_file):
     deposits, total_deposits, withdrawals, total_withdrawals = parse_statement_blocks(pdf_file)
 
     print("\n--- Deposits ---")
@@ -125,3 +124,6 @@ if __name__ == "__main__":
     for w in withdrawals:
         print(w)
     print("Total withdrawals:", total_withdrawals)
+
+
+watch_folder()

@@ -58,4 +58,5 @@ Thumbs.db
 *.tmp
 *.bak
 bank_statements/
+statement_storage
 notes.txt
