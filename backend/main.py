@@ -30,6 +30,5 @@ def watch_folder():
         seen = current
         time.sleep(10)
 
-def parser ():
+def parser (pdf_file):
     print('hello')
-
