@@ -34,8 +34,6 @@ def watch_folder():
         seen = current
         time.sleep(10)
 
-# isaac = 'bank_statements\IsaacExample.pdf'
-
 pattern = re.compile(
     r"^(\d{2}/\d{2}/\d{2})\s+(.*?)\s+(?:CO\s+)?([-()0-9,]+\.\d{2})$",
     re.IGNORECASE

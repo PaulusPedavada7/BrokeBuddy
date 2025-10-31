@@ -4,11 +4,18 @@ function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8000/")
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(err => console.error("Error:", err));
-  }, []);
+  fetch("http://localhost:8000/")
+    .then(res => {
+      console.log("Response status:", res.status);
+      return res.json();
+    })
+    .then(data => {
+      console.log("Data:", data);
+      setMessage(data.message);
+    })
+    .catch(err => console.error("Error:", err));
+}, []);
+
 
   return (
     <div style={{ textAlign: "center", marginTop: "3rem" }}>
