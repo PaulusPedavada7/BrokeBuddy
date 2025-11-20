@@ -9,6 +9,12 @@ pdfplumber==0.11.4
 pandas==2.2.3
 numpy==1.26.4
 
+setfit>=0.7.0
+scikit-learn>=1.2.0
+pandas>=2.0.0
+torch>=2.1.0
+sentence-transformers>=2.2.2
+
 # Database & ORM
 psycopg2==2.9.11
 SQLAlchemy==2.0.35
