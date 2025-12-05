@@ -1,24 +1,26 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-# Load environment variables from .env
+# Loads environment variables from .env
 load_dotenv()
-
 DATABASE_URL = os.getenv("DATABASE_URL")
-USER_ID = int(os.getenv("USER_ID"))
 
-# Connect to Postgres
-conn = psycopg2.connect(DATABASE_URL)
-cur = conn.cursor()
+# Connects to the PostgreSQL database
+engine = create_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-print(f"Connected to database. Current USER_ID={USER_ID}")
+# # Tests the database connection
+# try:
+#     with engine.connect() as connection:
+#         print("Database connection established successfully.")
+# except Exception as e:
+#     print(f"Error connecting to the database: {e}")
 
-# Example: get this user's transactions
-# cur.execute("SELECT id, date, description, amount FROM transactions WHERE user_id = %s;", (USER_ID,))
-# transactions = cur.fetchall()
-# print("Transactions:", transactions)
+# Define the base class for models
+class Base(DeclarativeBase):
+    pass
 
-# Close connection
-cur.close()
-conn.close()
+# Defines the tables (models)
