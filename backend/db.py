@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy import create_engine, String
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, mapped_column, Mapped
 
 # Loads environment variables from .env
 load_dotenv()
@@ -28,5 +28,16 @@ def get_db():
 # Define the base class for models
 class Base(DeclarativeBase):
     pass
+
+# Model for the users table
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    hased_password: Mapped[str] = mapped_column(String, nullable=False)
 
 # Defines the tables (models). NOTE: Need to run db.py to update DB schema
