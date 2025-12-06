@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os, time
-from dotenv import load_dotenv
-import pdfplumber
-import re
+from db import get_db, engine, Base
 
-app = FastAPI(title = "Broke Buddy API")
+app = FastAPI(title="Broke Buddy API")
+
+Base.metadata.create_all(bind=engine)
 
 # Allow React to call this API
 app.add_middleware(
