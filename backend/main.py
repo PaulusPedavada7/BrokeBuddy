@@ -1,15 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from db import get_db, engine, Base
+from sqlalchemy.orm import Session
+from db import get_db, engine, Base, User
+from passlib.context import CryptContext
+from schemas import UserCreate, UserSignIn
 
 app = FastAPI(title="Broke Buddy API")
 
 Base.metadata.create_all(bind=engine)
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # Allow React to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # yousr React dev server
+    allow_origins=["http://localhost:5173"],  # React dev server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,6 +23,38 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI!"}
+
+# API endpoint for login
+@app.post("/signup")
+def signup(user: UserCreate, db: Session = Depends(get_db)):
+    # Raise an error if the email is already registered
+    if db.query(User).filter(User.email == user.email).first():
+        raise HTTPException(status_code=400, detail="Email already registered")
+    print(user.password, type(user.password))
+    # Creates and adds a new user
+    new_user = User(
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email,
+        hashed_password=pwd_context.hash(user.password))
+    try:
+        db.add(new_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"message": "User created successfully"}
+
+# API endpoint for signup
+@app.post("/signin")
+def signin(user: UserSignIn, db: Session = Depends(get_db)):
+    # Raise an error if incorrect email/password
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user or not pwd_context.verify(user.password, db_user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+    
+    return {"message": "Sign in successful"}
 
 # def watch_folder():
 #     print()

@@ -2,6 +2,8 @@
 # Core backend framework
 fastapi==0.115.2
 uvicorn[standard]==0.31.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
 
 # PDF parsing and data handling
 watchdog==2.1.5

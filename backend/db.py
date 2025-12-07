@@ -34,10 +34,9 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
-    hased_password: Mapped[str] = mapped_column(String, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
 
 # Defines the tables (models). NOTE: Need to run db.py to update DB schema
