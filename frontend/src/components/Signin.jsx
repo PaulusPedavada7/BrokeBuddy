@@ -25,7 +25,7 @@ export default function Signin() {
         <div className="min h-screen flex justify-center items-center bg-gray-100">
             <div className="bg-white p-12 rounded-lg shadow-lg w-full max-w-md">
                 <div className="text-3xl font-bold test-gray-800">Sign in</div>
-                <p className="text-gray-600 mb-12">or {" "}
+                <p className="text-gray-400 mb-12">or{" "}
                     <Link to="/signup" className="text-blue-600 hover:underline">create an account</Link>
                 </p>
                 <form onSubmit={handleSubmit} className="space-y-7">
