@@ -19,7 +19,7 @@ export default function Signup() {
                 password: password
             });
             console.log(res.data.message);
-            navigate("/dashboard");
+            navigate("/signin");
         } catch (error) {
             console.error(error?.response?.data?.detail || error.message);
         }

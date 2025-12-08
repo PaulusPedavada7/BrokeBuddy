@@ -2,8 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from db import get_db, engine, Base, User
-from passlib.context import CryptContext
 from schemas import UserCreate, UserSignIn
+from passlib.context import CryptContext
 
 app = FastAPI(title="Broke Buddy API")
 
@@ -30,7 +30,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     # Raise an error if the email is already registered
     if db.query(User).filter(User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
-    print(user.password, type(user.password))
+    
     # Creates and adds a new user
     new_user = User(
         first_name=user.first_name,
