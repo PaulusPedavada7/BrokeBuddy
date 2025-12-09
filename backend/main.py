@@ -1,14 +1,26 @@
-from fastapi import FastAPI, Depends, HTTPException
+import os
+from dotenv import load_dotenv
+from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import get_db, engine, Base, User
 from schemas import UserCreate, UserSignIn
 from passlib.context import CryptContext
+from datetime import datetime, timedelta, timezone
+from jose import JWTError, jwt
 
 app = FastAPI(title="Broke Buddy API")
 
 Base.metadata.create_all(bind=engine)
 
+# Load environment variables
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="signin")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Allow React to call this API
@@ -20,6 +32,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Helper function to create access tokens
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+# Helper function to get current user from token
+def get_current_user(token: str = Depends(lambda request: request.cookies.get("access_token")), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+# Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI!"}
@@ -54,7 +92,31 @@ def signin(user: UserSignIn, db: Session = Depends(get_db)):
     if not db_user or not pwd_context.verify(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     
-    return {"message": "Sign in successful"}
+    # Create JWT token
+    access_token = create_access_token(
+        data={"sub": db_user.email}
+    )
+    
+    # Set secure HTTP-only cookie
+    response = Response()
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False, # Allows both HTTP and HTTPS (for production: True = HTTPS only)
+        samesite="lax",
+    )
+    return {"message": "Signed in successful"}
+
+# Protected endpoint to get current user info
+@app.get("/me")
+def read_current_user(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "email": current_user.email,
+    }
 
 # def watch_folder():
 #     print()
