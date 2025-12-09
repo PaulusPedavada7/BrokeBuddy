@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException, Response
+from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -19,6 +19,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="signin")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,26 +44,12 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-# Helper function to get current user from token
-def get_current_user(token: str = Depends(lambda request: request.cookies.get("access_token")), db: Session = Depends(get_db)):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    user = db.query(User).filter(User.email == email).first()
-    if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
-
 # Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI!"}
 
-# API endpoint for login
+# Endpoint for signing up
 @app.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     # Raise an error if the email is already registered
@@ -84,29 +71,93 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     return {"message": "User created successfully"}
 
-# API endpoint for signup
+# Endpoint for signing in
 @app.post("/signin")
-def signin(user: UserSignIn, db: Session = Depends(get_db)):
+def signin(user: UserSignIn, response: Response, db: Session = Depends(get_db)):
     # Raise an error if incorrect email/password
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not pwd_context.verify(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     
-    # Create JWT token
+    # Creates access token
     access_token = create_access_token(
-        data={"sub": db_user.email}
+        data={"sub": db_user.email},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
+    # Creates refresh token
+    refresh_token = create_access_token(
+        data={"sub": db_user.email},
+        expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
     
-    # Set secure HTTP-only cookie
-    response = Response()
+    # Set secure HTTP-only cookies
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         secure=False, # Allows both HTTP and HTTPS (for production: True = HTTPS only)
-        samesite="lax",
+        samesite="lax"
     )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False, # Allows both HTTP and HTTPS (for production: True = HTTPS only)
+        samesite="lax"
+    )
+
     return {"message": "Signed in successful"}
+
+# Endpoint for refreshing tokens
+@app.post("/refresh")
+def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    # Creates new access token
+    new_access_token = create_access_token(
+        data={"sub": user.email},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    response.set_cookie(
+        key="access_token",
+        value=new_access_token,
+        httponly=True,
+        secure=False, # Allows both HTTP and HTTPS (for production: True = HTTPS only)
+        samesite="lax"
+    )
+
+    return {"message": "Access token refreshed"}
+
+# Helper function to get current user from token
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Access token missing")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
 
 # Protected endpoint to get current user info
 @app.get("/me")
