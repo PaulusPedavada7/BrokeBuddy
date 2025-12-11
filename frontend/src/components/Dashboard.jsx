@@ -1,27 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import api from "../axios.jsx";
+import { UserContext } from "../App.jsx";
 
 function Dashboard() {
   const [darkMode, setDarkMode] = useState(false);
-
-  // Just to test if user info is accessible
-  const [user, setUser] = useState("");
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        // Try getting user info from backend
-        const res = await api.get("/me");
-        setUser(res.data);
-        console.log("User info:", res.data);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
-    };
-    getUser();
-  }, []);
+  const { currentUser } = useContext(UserContext);
 
   return (
-    <p>Hello, {user.first_name} {user.last_name}</p>
+    <p>Hello, {currentUser.first_name} {currentUser.last_name}</p>
   );
 }
 

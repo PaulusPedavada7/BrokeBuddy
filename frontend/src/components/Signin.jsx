@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../axios.jsx';
+import { UserContext } from '../App.jsx';
 
 export default function Signin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { setCurrentUser } = useContext(UserContext);
     const navigate = useNavigate();
 
     async function handleSubmit(event) {
         event.preventDefault();
         try {
-            const res = await api.post("/signin", {
+            // Send sign-in request to backend
+            await api.post("/signin", {
                 email: email,
                 password: password
             });
-            console.log(res.data.message);
+
+            // Fetch user info after successful sign-in
+            const res = await api.get("/me");
+            setCurrentUser(res.data); 
+
             navigate("/dashboard");
         } catch (error) {
             console.error(error?.response?.data?.detail || error.message);
