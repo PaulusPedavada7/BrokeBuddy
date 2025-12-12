@@ -1,6 +1,7 @@
 import React, { useState , useContext } from 'react';
 import { UserContext } from '../App.jsx';
 import ThemeToggle from './ThemeToggle';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 
 export default function Sidebar() {
     const [isOpen, setIsOpen] = useState(true);
@@ -11,9 +12,11 @@ export default function Sidebar() {
             {/* Top navigation */}
             <div>
                 {/* Title and menu icon */}
-                <div className="flex items-center justify-between p-4">
+                <div className="flex items-center justify-between w-full p-4">
                     {isOpen && <h2 className="text-xl font-bold">BrokeBuddy</h2>}
-                    <button onClick={() => setIsOpen(!isOpen)} className="text-gray-600 dark:text-gray-400">{isOpen ? "<" : ">"}</button>
+                    <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-center w-10 h-10 text-gray-600 dark:text-gray-400">
+                        {isOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
+                    </button>
                 </div>
 
                 {/* Sidebar navigation links */}
@@ -28,7 +31,7 @@ export default function Sidebar() {
 
             {/* Bottom navigation */}
             <div className="flex flex-col gap-4 mb-4 p-4">
-                <ThemeToggle />
+                {isOpen && <ThemeToggle />}
 
                 {/* User Profile */}
                 <div className="flex gap-2">
