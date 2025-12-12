@@ -1,7 +1,7 @@
 import React, { useState , useContext } from 'react';
 import { UserContext } from '../App.jsx';
 import ThemeToggle from './ThemeToggle';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
+import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 
 export default function Sidebar() {
     const [isOpen, setIsOpen] = useState(true);
@@ -30,12 +30,12 @@ export default function Sidebar() {
             </div>
 
             {/* Bottom navigation */}
-            <div className="flex flex-col gap-4 mb-4 p-4">
+            <div className="flex flex-col gap-6 mb-4 p-4">
                 {isOpen && <ThemeToggle />}
 
                 {/* User Profile */}
-                <div className="flex gap-2">
-                    {/* Add Profile Icon */}
+                <div className="flex items-center gap-2">
+                    <UserCircleIcon className="w-8 h-8"/>
                     {isOpen && <span>{currentUser.first_name} {currentUser.last_name}</span>}
                 </div>
             </div>
