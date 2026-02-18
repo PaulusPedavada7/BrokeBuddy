@@ -21,7 +21,9 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="signin")
+# Use OAuth2PasswordBearer for token authentication (not used in this implementation since we're using cookies, but can be useful for future API endpoints)
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="signin")
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Allow React to call this API
