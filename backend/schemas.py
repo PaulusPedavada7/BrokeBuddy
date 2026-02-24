@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 # Schema for user creation
 class UserCreate(BaseModel):
@@ -11,3 +12,9 @@ class UserCreate(BaseModel):
 class UserSignIn(BaseModel):
     email: str
     password: str
+
+class TransactionCreate(BaseModel):
+    amount: float
+    category: str
+    description: str
+    date: datetime

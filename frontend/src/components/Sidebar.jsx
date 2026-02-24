@@ -2,7 +2,8 @@ import React, { useState , useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from '../App.jsx';
 import ThemeToggle from './ThemeToggle';
-import { Bars3Icon, XMarkIcon, UserCircleIcon, UserIcon, HomeIcon } from '@heroicons/react/24/solid';
+import { Bars3Icon, XMarkIcon, UserCircleIcon, UserIcon, HomeIcon, BanknotesIcon } from '@heroicons/react/24/solid';
+
 
 export default function Sidebar() {
     const [isOpen, setIsOpen] = useState(true);
@@ -33,6 +34,12 @@ export default function Sidebar() {
                         <HomeIcon className="w-6 h-6 shrink-0" />
                         {isOpen && <span>Dashboard</span>}
                     </Link>
+
+                    <Link to="/transactions" className={`flex items-center gap-3 rounded-md px-3 py-2 ${isOpen && isActive("/transactions") ? "text-blue-500 dark:text-white bg-black/5 dark:bg-white/5" : isOpen && "dark:text-gray-400 hover:text-blue-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"}`}>
+                        <BanknotesIcon className="w-6 h-6 shrink-0" />
+                        {isOpen && <span>Transactions</span>}
+                    </Link>
+                    
                     <a href="#" className={`flex items-center gap-3 rounded-md px-3 py-2 ${isOpen && isActive("/profile") ? "text-blue-500 dark:text-white bg-black/5 dark:bg-white/5" : isOpen && "dark:text-gray-400 hover:text-blue-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"}`}>
                         <UserIcon className="w-6 h-6 shrink-0" />
                         {isOpen && <span>Profile</span>}

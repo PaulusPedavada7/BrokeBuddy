@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, String
+from sqlalchemy import create_engine, String, Integer, Float, DateTime, ForeignKey
+from datetime import datetime
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, mapped_column, Mapped
 
 # Loads environment variables from .env
@@ -38,5 +39,17 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    userid: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    category: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 
 # Defines the tables (models). NOTE: Need to run db.py to update DB schema

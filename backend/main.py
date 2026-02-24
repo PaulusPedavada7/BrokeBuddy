@@ -4,8 +4,8 @@ from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from db import get_db, engine, Base, User
-from schemas import UserCreate, UserSignIn
+from db import get_db, engine, Base, User, Transaction
+from schemas import UserCreate, UserSignIn, TransactionCreate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -168,6 +168,60 @@ def read_current_user(current_user: User = Depends(get_current_user)):
         "last_name": current_user.last_name,
         "email": current_user.email,
     }
+    
+# Endpoint to add a transaction
+@app.post("/addtransaction")
+def add_transaction(transaction: TransactionCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    new_transaction = Transaction(
+        userid=current_user.id,
+        amount=transaction.amount,
+        category=transaction.category,
+        description=transaction.description,
+        date=transaction.date
+    )
+    try:
+        db.add(new_transaction)
+        db.commit()
+        # db.refresh(new_transaction)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Transaction added successfully", "transaction_id": new_transaction.id}
+
+@app.get("/gettransactions")
+def get_transactions(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    transactions = db.query(Transaction).filter(Transaction.userid == current_user.id).all()
+    return transactions
+
+@app.delete("/deletetransaction/{transaction_id}")
+def delete_transaction(transaction_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    transaction = db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.userid == current_user.id).first()
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    try:
+        db.delete(transaction)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Transaction deleted successfully"} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # def watch_folder():
 #     print()
