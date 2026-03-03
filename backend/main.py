@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import get_db, engine, Base, User, Transaction
-from schemas import UserCreate, UserSignIn, TransactionCreate
+from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -200,6 +200,39 @@ def add_transaction(transaction: TransactionCreate, current_user: User = Depends
 def get_transactions(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     transactions = db.query(Transaction).filter(Transaction.userid == current_user.id).all()
     return transactions
+
+# Endpoint to partially update a transaction (category, amount, description, date)
+@app.patch("/updatetransaction/{transaction_id}")
+def update_transaction(
+    transaction_id: int,
+    updates: TransactionUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    transaction = db.query(Transaction).filter(
+        Transaction.id == transaction_id,
+        Transaction.userid == current_user.id
+    ).first()
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    # Only apply fields that were actually sent in the request (exclude_unset=True)
+    changed_fields = updates.model_dump(exclude_unset=True)
+    if not changed_fields:
+        raise HTTPException(status_code=400, detail="No fields provided to update")
+
+    for field, value in changed_fields.items():
+        setattr(transaction, field, value)
+
+    try:
+        db.commit()
+        db.refresh(transaction)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return transaction
 
 @app.delete("/deletetransaction/{transaction_id}")
 def delete_transaction(transaction_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):

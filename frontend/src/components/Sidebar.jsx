@@ -25,7 +25,7 @@ export default function Sidebar() {
       className={`h-screen flex flex-col justify-between bg-gray-100 dark:bg-[#151515] text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600 transition-all duration-300 overflow-hidden ${isOpen ? "w-64" : "w-16"}`}
     >
       {/* Top navigation */}
-      <div>
+      <div className="flex flex-col flex-1">
         {/* Title and menu icon */}
         <div className="flex items-center justify-between w-full p-4">
           {isOpen && <h2 className="text-xl font-bold px-3">BrokeBuddy</h2>}

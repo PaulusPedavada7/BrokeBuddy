@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -18,3 +20,12 @@ class TransactionCreate(BaseModel):
     category: str
     description: str
     date: datetime
+    
+class TransactionUpdate(BaseModel):
+    """
+    All fields are optional — only the ones included in the request body will be updated.
+    """
+    amount: Optional[float] = None
+    category: Optional[str] = None
+    description: Optional[str] = None
+    date: Optional[datetime] = None
