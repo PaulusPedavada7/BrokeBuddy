@@ -9,6 +9,7 @@ export const CATEGORY_CONFIG = {
   education: { label: "Education", color: "#06b6d4" },
   housing: { label: "Housing", color: "#6366f1" },
   health: { label: "Health & Fitness", color: "#14b8a6" },
+  personal: { label: "Personal", color: "#e11d48" },
 };
 
 export const CATEGORY_BADGE = {
@@ -27,6 +28,7 @@ export const CATEGORY_BADGE = {
   housing:
     "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
   health: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+  personal: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
 };
 
 export const MONTHS = [
