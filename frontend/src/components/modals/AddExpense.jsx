@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import api from "../axios.jsx";
-import { CATEGORY_CONFIG } from "../constants.js";
+import api from "../../axios.jsx";
+import { CATEGORY_CONFIG } from "../../constants.js";
 
 function AddExpense({ onClose }) {
   const [amount, setAmount] = useState("");

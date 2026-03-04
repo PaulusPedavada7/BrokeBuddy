@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import ReactDOM from "react-dom";
-import api from "../axios.jsx";
+import api from "../../axios.jsx";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../App.jsx";
-import Sidebar from "./Sidebar.jsx";
-import AddExpense from "./AddExpense.jsx";
-import DeleteExpense from "./DeleteExpense.jsx";
-import { CATEGORY_CONFIG, MONTHS } from "../constants.js";
+import { UserContext } from "../../App.jsx";
+import Sidebar from "../layout/Sidebar.jsx";
+import AddExpense from "../modals/AddExpense.jsx";
+import DeleteExpense from "../modals/DeleteExpense.jsx";
+import { CATEGORY_CONFIG, MONTHS } from "../../constants.js";
 
 const PAGE_SIZE = 10;
 

@@ -1,4 +1,4 @@
-import api from "../axios.jsx";
+import api from "../../axios.jsx";
 
 function DeleteExpense({ onClose, id }) {
   async function handleSubmit(e) {
