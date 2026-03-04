@@ -29,3 +29,19 @@ class TransactionUpdate(BaseModel):
     category: Optional[str] = None
     description: Optional[str] = None
     date: Optional[datetime] = None
+
+
+class RecurringTransactionCreate(BaseModel):
+    amount: float
+    category: str
+    date: int
+    isPaid: bool = False
+
+class RecurringTransactionUpdate(BaseModel):
+    """
+    All fields are optional — only the ones included in the request body will be updated.
+    """
+    amount: Optional[float] = None
+    category: Optional[str] = None
+    date: Optional[int] = None
+    isPaid: Optional[bool] = None
