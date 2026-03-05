@@ -22,7 +22,7 @@ export default function Sidebar() {
   // NOTE: Used backtick for className not single quotes to allow JS template literal and string interpolation
   return (
     <div
-      className={`h-screen shrink-0 flex flex-col justify-between bg-gray-100 dark:bg-[#151515] text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600 transition-all duration-300 overflow-hidden ${isOpen ? "w-64" : "w-16"}`}
+      className={`h-screen shrink-0 flex flex-col justify-between bg-gray-100 dark:bg-[#151515] text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600 transition-all duration-300 overflow-visible ${isOpen ? "w-64" : "w-16"}`}
     >
       {/* Top navigation */}
       <div className="flex flex-col flex-1">
@@ -75,7 +75,6 @@ export default function Sidebar() {
 
       {/* Bottom navigation */}
       <div className="flex flex-col gap-6 mb-4 p-4">
-        {isOpen && <ThemeToggle />}
         <UserProfilePopover isOpen={isOpen} />
       </div>
     </div>

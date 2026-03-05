@@ -1,7 +1,12 @@
-import { useState, useContext, useRef } from "react"
+import { useState, useContext } from "react"
 import { UserContext } from "../../App.jsx";
 import ThemeToggle from "../shared/ThemeToggle.jsx";
-import { ChevronRightIcon } from "@heroicons/react/24/solid";
+import {
+  ChevronRightIcon,
+  EnvelopeIcon,
+  Cog6ToothIcon,
+  ArrowRightStartOnRectangleIcon,
+ } from "@heroicons/react/24/solid";
 
 export default function UserProfilePopover({isOpen: sidebarOpen}) {
   const { currentUser } = useContext(UserContext);
@@ -10,17 +15,12 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
   const initials = `${currentUser?.first_name?.[0] ?? ""}${currentUser?.last_name?.[0] ?? ""}`.toUpperCase();
   const fullName = `${currentUser?.first_name ?? ""} ${currentUser?.last_name ?? ""}`.trim();
 
-  // Function to open the popover
-  const handleOpen = () => {
-
-  };
-
   return (
-    <>
+    <div className="relative">
       {/* Popover trigger */}
       <button
-        onClick={handleOpen}
-        className={`flex items-center gap-2.5 rounded-xl px-2 py-2 w-full text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${open ? "bg-black/5 dark:bg-white/5" : ""}`}
+        onClick={() => setOpen(prev => !prev)}
+        className={`flex items-center gap-2.5 rounded-xl p-2 w-full text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${open ? "bg-black/5 dark:bg-white/5" : ""}`}
       >
         {/* Avatar circle */}
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white bg-blue-600 dark:bg-blue-500 select-none">
@@ -48,7 +48,59 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
       </button>
 
       {/* Popover */}
-      
-    </>
+      {open && (
+        <div className="absolute m-0 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1e1e] shadow-xl shadow-black/10 bottom-[calc(100%+8px)] left-0 w-full min-w-60">
+          {/* User Info */}
+          <div className="flex items-center gap-3 p-3.5">
+            {/* Avatar circle */}
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white bg-blue-600 dark:bg-blue-500 select-none">
+              {initials || "??"}
+            </span>
+
+            {/* Name + email */}
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                {fullName || "Loading..."}
+              </p>
+              <p className="flex items-center gap-1 truncate text-xs text-gray-400 dark:text-gray-500">
+                <EnvelopeIcon className="w-3 h-3 shrink-0" />
+                {currentUser?.email}
+              </p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-3 h-px bg-gray-300 dark:bg-gray-700" />
+
+          {/* Account settings */}
+          <div className="p-1.5">
+            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+              <Cog6ToothIcon className="w-4 h-4 shrink-0 text-gray-400" />
+              Account settings
+              <ChevronRightIcon className="ml-auto w-3.5 h-3.5 text-gray-300" />
+            </button>
+          </div>
+
+          {/* Theme toggle */}
+          <div className="px-1.5 pb-1.5">
+            <span className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2">
+              {/* USE CONTEXT FOR THEME AND REMOVE THE TEXT AND STYLING FROM THE COMPONENT TO MAKE THE TOGGLE MORE REUSABLE */}
+              <ThemeToggle />
+            </span>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-3 h-px bg-gray-300 dark:bg-gray-700" />
+
+          {/* Sign out */}
+          <div className="p-1.5">
+            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 transition-colors">
+              <ArrowRightStartOnRectangleIcon className="w-4 h-4 shrink-0 text-red-400" />
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
