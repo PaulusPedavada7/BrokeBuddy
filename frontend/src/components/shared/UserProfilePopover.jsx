@@ -20,7 +20,7 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
       {/* Popover trigger */}
       <button
         onClick={() => setOpen(prev => !prev)}
-        className={`flex items-center gap-2.5 rounded-xl p-2 w-full text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${open ? "bg-black/5 dark:bg-white/5" : ""}`}
+        className={`flex items-center gap-2.5 rounded-xl p-2 w-full text-left transition-colors cursor-pointer ${!sidebarOpen ? "justify-center" : `hover:bg-black/5 dark:hover:bg-white/5 ${open ? "bg-black/5 dark:bg-white/5" : ""}`}`}
       >
         {/* Avatar circle */}
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white bg-blue-600 dark:bg-blue-500 select-none">
@@ -74,7 +74,7 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
 
           {/* Account settings */}
           <div className="p-1.5">
-            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors cursor-pointer">
               <Cog6ToothIcon className="w-4 h-4 shrink-0 text-gray-400" />
               Account settings
               <ChevronRightIcon className="ml-auto w-3.5 h-3.5 text-gray-300" />
@@ -94,13 +94,15 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
 
           {/* Sign out */}
           <div className="p-1.5">
-            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 transition-colors">
+            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 transition-colors cursor-pointer">
               <ArrowRightStartOnRectangleIcon className="w-4 h-4 shrink-0 text-red-400" />
               Sign out
             </button>
           </div>
         </div>
       )}
+
+      {/* ADD A MODAL TO CONFIRM SIGN OUT */}
     </div>
   )
 }

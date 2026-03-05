@@ -19,6 +19,15 @@ export default function Sidebar() {
   // Function to check if the current path matches the link's path
   const isActive = (path) => location.pathname === path;
 
+  const navLinkClass = (path) =>
+  `flex items-center gap-3 rounded-md px-3 py-2 transition-colors ${
+    isActive(path)
+      ? `text-blue-500 dark:text-blue-400 ${isOpen ? "bg-black/5 dark:bg-white/5" : ""}`
+      : !isOpen
+        ? ""
+        : "text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+  } ${!isOpen ? "justify-center" : ""}`;
+
   // NOTE: Used backtick for className not single quotes to allow JS template literal and string interpolation
   return (
     <div
@@ -45,28 +54,18 @@ export default function Sidebar() {
         <nav
           className={`flex flex-col gap-1 mt-4 ${isOpen ? "p-4" : "px-2 py-4"}`}
         >
-          {/* CHANGE THE PLACEHOLDER LINKS (#) and use <Link to?> tag instead of <a> */}
           {/* Make a list for the pages with name and links */}
-          <Link
-            to="/dashboard"
-            className={`flex items-center gap-3 rounded-md px-3 py-2 ${isOpen && isActive("/dashboard") ? "text-blue-500 dark:text-white bg-black/5 dark:bg-white/5" : isOpen && "dark:text-gray-400 hover:text-blue-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"}`}
-          >
+          <Link to="/dashboard" className={navLinkClass("/dashboard")}>
             <HomeIcon className="w-6 h-6 shrink-0" />
             {isOpen && <span>Dashboard</span>}
           </Link>
 
-          <Link
-            to="/transactions"
-            className={`flex items-center gap-3 rounded-md px-3 py-2 ${isOpen && isActive("/transactions") ? "text-blue-500 dark:text-white bg-black/5 dark:bg-white/5" : isOpen && "dark:text-gray-400 hover:text-blue-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"}`}
-          >
+          <Link to="/transactions" className={navLinkClass("/transactions")}>
             <BanknotesIcon className="w-6 h-6 shrink-0" />
             {isOpen && <span>Transactions</span>}
           </Link>
 
-          <a
-            href="#"
-            className={`flex items-center gap-3 rounded-md px-3 py-2 ${isOpen && isActive("/profile") ? "text-blue-500 dark:text-white bg-black/5 dark:bg-white/5" : isOpen && "dark:text-gray-400 hover:text-blue-500 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"}`}
-          >
+          <a href="#" className={navLinkClass("/profile")}>
             <UserIcon className="w-6 h-6 shrink-0" />
             {isOpen && <span>Profile</span>}
           </a>
@@ -74,7 +73,7 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom navigation */}
-      <div className="flex flex-col gap-6 mb-4 p-4">
+      <div className={`flex flex-col gap-6 mb-4 ${isOpen ? "px-4" : ""} py-4`}>
         <UserProfilePopover isOpen={isOpen} />
       </div>
     </div>
