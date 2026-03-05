@@ -1,21 +1,26 @@
 import os
 from dotenv import load_dotenv
+# Load environment variables
+load_dotenv()
+
 from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from db import get_db, engine, Base, User
-from schemas import UserCreate, UserSignIn
+from db import get_db, engine, Base, User, Transaction
+from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 
 app = FastAPI(title="Broke Buddy API")
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+print("***************************************************")
+print("DATABASE_URL:", DATABASE_URL)  # add this
+
 Base.metadata.create_all(bind=engine)
 
-# Load environment variables
-load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
@@ -170,106 +175,75 @@ def read_current_user(current_user: User = Depends(get_current_user)):
         "last_name": current_user.last_name,
         "email": current_user.email,
     }
+    
+# Endpoint to add a transaction
+@app.post("/addtransaction")
+def add_transaction(transaction: TransactionCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    new_transaction = Transaction(
+        userid=current_user.id,
+        amount=transaction.amount,
+        category=transaction.category,
+        description=transaction.description,
+        date=transaction.date
+    )
+    try:
+        db.add(new_transaction)
+        db.commit()
+        # db.refresh(new_transaction)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Transaction added successfully", "transaction_id": new_transaction.id}
 
-# def watch_folder():
-#     print()
-#     seen = set(os.listdir(STATEMENTS_FOLDER))
-#     while True:
-#         current = set(os.listdir(STATEMENTS_FOLDER))
-#         new_files = current - seen
-#         for file in new_files:
-#             parser(os.path.join(STATEMENTS_FOLDER, file))
-#         seen = current
-#         time.sleep(10)
+@app.get("/gettransactions")
+def get_transactions(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    transactions = db.query(Transaction).filter(Transaction.userid == current_user.id).all()
+    return transactions
 
-# pattern = re.compile(
-#     r"^(\d{2}/\d{2}/\d{2})\s+(.*?)\s+(?:CO\s+)?([-()0-9,]+\.\d{2})$",
-#     re.IGNORECASE
-# )
-# total_re = re.compile(r"([()0-9,]+\.\d{2})$")
+# Endpoint to partially update a transaction (category, amount, description, date)
+@app.patch("/updatetransaction/{transaction_id}")
+def update_transaction(
+    transaction_id: int,
+    updates: TransactionUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    transaction = db.query(Transaction).filter(
+        Transaction.id == transaction_id,
+        Transaction.userid == current_user.id
+    ).first()
 
-# def parse_amount(s: str) -> float:
-#     s = s.strip().replace(",", "")
-#     negative = s.startswith("(") and s.endswith(")")
-#     if negative:
-#         s = s[1:-1]
-#     return -float(s) if negative else float(s)
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
 
-# def parse_statement_blocks(pdf_path):
-#     deposits, withdrawals = [], []
-#     total_deposits, total_withdrawals = None, None
-#     in_deposits, in_withdrawals = False, False
+    # Only apply fields that were actually sent in the request (exclude_unset=True)
+    changed_fields = updates.model_dump(exclude_unset=True)
+    if not changed_fields:
+        raise HTTPException(status_code=400, detail="No fields provided to update")
 
-#     with pdfplumber.open(pdf_path) as pdf:
-#         for page in pdf.pages:
-#             text = page.extract_text()
-#             if not text:
-#                 continue
+    for field, value in changed_fields.items():
+        setattr(transaction, field, value)
 
-#             for line in text.splitlines():
-#                 line = line.strip()
+    try:
+        db.commit()
+        db.refresh(transaction)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
-#                 # --- Deposits section ---
-#                 if "Deposits and other additions" in line:
-#                     in_deposits, in_withdrawals = True, False
-#                     continue
+    return transaction
 
-#                 if "Total deposits and other additions" in line:
-#                     in_deposits = False
-#                     m_total = total_re.search(line)
-#                     if m_total:
-#                         total_deposits = parse_amount(m_total.group(1))
-#                     continue
-
-#                 # --- Withdrawals section ---
-#                 if "Withdrawals and other subtractions" in line:
-#                     in_withdrawals, in_deposits = True, False
-#                     continue
-
-#                 if "Total other subtractions" in line:
-#                     in_withdrawals = False
-#                     m_total = total_re.search(line)
-#                     if m_total:
-#                         total_withdrawals = parse_amount(m_total.group(1))
-#                     continue
-
-#                 # --- Parse lines inside deposit/withdrawal blocks ---
-#                 if in_deposits or in_withdrawals:
-#                     m = pattern.match(line)
-#                     if m:
-#                         date, desc, amt_str = m.groups()
-#                         amt = parse_amount(amt_str)
-#                         record = {"date": date, "description": desc.strip(), "amount": amt}
-#                         if in_deposits:
-#                             deposits.append(record)
-#                         else:
-#                             withdrawals.append(record)
-
-#     # Sanity checks
-#     if total_deposits is not None:
-#         assert abs(sum(d["amount"] for d in deposits) - total_deposits) < 0.05, \
-#             "Deposit sum mismatch"
-#     computed_withdrawals = sum(w["amount"] for w in withdrawals)
-#     if total_withdrawals is not None:
-#         assert abs(abs(computed_withdrawals) - abs(total_withdrawals)) < 0.05, \
-#         f"Withdrawal sum mismatch: computed {computed_withdrawals}, pdf total {total_withdrawals}"
-
-#     return deposits, total_deposits, withdrawals, total_withdrawals
-
-
-# # Example usage
-# def parser(pdf_file):
-#     deposits, total_deposits, withdrawals, total_withdrawals = parse_statement_blocks(pdf_file)
-
-#     print("\n--- Deposits ---")
-#     for d in deposits:
-#         print(d)
-#     print("Total deposits:", total_deposits)
-
-#     print("\n--- Withdrawals ---")
-#     for w in withdrawals:
-#         print(w)
-#     print("Total withdrawals:", total_withdrawals)
-
-
-# watch_folder()
+@app.delete("/deletetransaction/{transaction_id}")
+def delete_transaction(transaction_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    transaction = db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.userid == current_user.id).first()
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    try:
+        db.delete(transaction)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Transaction deleted successfully"} 

@@ -1,15 +1,37 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, useEffect, useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Dashboard from "./components/Dashboard";
-import Signin from "./components/Signin";
-import Signup from "./components/Signup";
+import Dashboard from "./components/dashboard/Dashboard";
+import Signin from "./components/pages/Signin.jsx";
+import Signup from "./components/pages/Signup.jsx";
+import Transactions from "./components/pages/Transactions.jsx";
 
-// Create a UserContext to manage user state across the app
 export const UserContext = createContext(null);
 
+function ProtectedRoute({ children }) {
+  const { currentUser } = useContext(UserContext);
+  if (!currentUser) return <Navigate to="/signin" />;
+  return children;
+}
+
 function App() {
-  // User state to be shared via context
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/me", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        if (data) setCurrentUser(data);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return null;
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser }}>
@@ -18,7 +40,22 @@ function App() {
           <Route path="/" element={<Navigate to="/signin" />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute>
+                <Transactions />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </UserContext.Provider>
