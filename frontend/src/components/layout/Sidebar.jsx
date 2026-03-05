@@ -2,10 +2,10 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../../App.jsx";
 import ThemeToggle from "../shared/ThemeToggle.jsx";
+import UserProfilePopover from "../shared/UserProfilePopover.jsx";
 import {
   Bars3Icon,
   XMarkIcon,
-  UserCircleIcon,
   UserIcon,
   HomeIcon,
   BanknotesIcon,
@@ -76,18 +76,7 @@ export default function Sidebar() {
       {/* Bottom navigation */}
       <div className="flex flex-col gap-6 mb-4 p-4">
         {isOpen && <ThemeToggle />}
-
-        {/* User Profile */}
-        <div className="flex items-center gap-2">
-          <UserCircleIcon className="w-8 h-8" />
-          {isOpen && (
-            <span>
-              {currentUser
-                ? `${currentUser.first_name} ${currentUser.last_name}`
-                : "Loading..."}
-            </span>
-          )}
-        </div>
+        <UserProfilePopover isOpen={isOpen} />
       </div>
     </div>
   );

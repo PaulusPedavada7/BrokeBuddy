@@ -108,7 +108,7 @@ function CategoryDropdown({ category, onCategoryChange }) {
               }`}
             >
               <span
-                className="w-2 h-2 rounded-full flex-shrink-0"
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: cfg.color }}
               />
               {cfg.label}
@@ -150,7 +150,7 @@ function CategoryDropdown({ category, onCategoryChange }) {
         title="Change category"
       >
         <span
-          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+          className="w-1.5 h-1.5 rounded-full shrink-0"
           style={{ backgroundColor: current.color }}
         />
         {saving ? "Saving…" : current.label}
