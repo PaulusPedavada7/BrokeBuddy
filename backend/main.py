@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import get_db, engine, Base, User, Transaction
-from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate, ProfileUpdate
+from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate, ProfileUpdate, PasswordUpdate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -285,3 +285,19 @@ def update_profile(updates: ProfileUpdate, current_user: User = Depends(get_curr
         "last_name": current_user.last_name,
         "email": current_user.email,
     }
+
+@app.patch("/updatepassword")
+def update_password(updates: PasswordUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not pwd_context.verify(updates.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+    
+    current_user.hashed_password = pwd_context.hash(updates.new_password)
+
+    try:
+        db.commit()
+        db.refresh(current_user)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Password updated successfully"}

@@ -50,3 +50,7 @@ class ProfileUpdate(BaseModel):
     first_name: str
     last_name: str
     email: str
+
+class PasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str

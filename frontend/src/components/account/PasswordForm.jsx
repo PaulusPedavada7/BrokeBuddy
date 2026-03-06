@@ -13,7 +13,23 @@ export default function PasswordForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // api call
+    
+    if (newPass !== confirmPass) {
+      console.error("Retype the new password correctly to confirm")
+      return;
+    }
+
+    await api.patch("/updatepassword", {
+      current_password: currentPass,
+      new_password: newPass,
+    });
+
+    setCurrentPass("");
+    setNewPass("");
+    setConfirmPass("");
+    setShowCurrent(false);
+    setShowNew(false);
+    setShowConfirm(false)
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
