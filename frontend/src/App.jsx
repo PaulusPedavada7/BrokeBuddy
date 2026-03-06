@@ -4,7 +4,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Signin from "./components/pages/Signin.jsx";
 import Signup from "./components/pages/Signup.jsx";
 import Transactions from "./components/pages/Transactions.jsx";
-import Account from "./components/pages/Account.jsx";
+import Account from "./components/account/Account.jsx";
 import api from "./axios.jsx";
 
 export const UserContext = createContext(null);
