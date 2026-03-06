@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import get_db, engine, Base, User, Transaction
-from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate
+from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate, ProfileUpdate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -260,4 +260,28 @@ def delete_transaction(transaction_id: int, current_user: User = Depends(get_cur
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     
-    return {"message": "Transaction deleted successfully"} 
+    return {"message": "Transaction deleted successfully"}
+
+@app.patch("/updateprofile")
+def update_profile(updates: ProfileUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Raise an exception if email already in use (id != check to prevent returning the current user)
+    if db.query(User).filter(User.email == updates.email, User.id != current_user.id).first():
+        raise HTTPException(status_code=400, detail="Email already in use")
+    
+    current_user.first_name = updates.first_name
+    current_user.last_name = updates.last_name
+    current_user.email = updates.email
+
+    try:
+        db.commit()
+        db.refresh(current_user)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "email": current_user.email,
+    }

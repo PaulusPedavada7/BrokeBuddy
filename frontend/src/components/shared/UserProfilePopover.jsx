@@ -20,7 +20,7 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
   const fullName = `${currentUser?.first_name ?? ""} ${currentUser?.last_name ?? ""}`.trim();
 
   const handleSignOut = async () => {
-    api.post("/signout");
+    await api.post("/signout");
     setCurrentUser(null);
     setShowSignOutModal(false);
   };

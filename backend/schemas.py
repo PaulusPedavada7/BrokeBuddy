@@ -45,3 +45,8 @@ class RecurringTransactionUpdate(BaseModel):
     category: Optional[str] = None
     date: Optional[int] = None
     isPaid: Optional[bool] = None
+
+class ProfileUpdate(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
