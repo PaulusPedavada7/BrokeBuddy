@@ -1,5 +1,6 @@
 import { useState, useContext } from "react"
 import { UserContext } from "../../App.jsx";
+import api from "../../axios.jsx";
 import ThemeToggle from "../shared/ThemeToggle.jsx";
 import {
   ChevronRightIcon,
@@ -10,15 +11,16 @@ import {
  } from "@heroicons/react/24/solid";
 
 export default function UserProfilePopover({isOpen: sidebarOpen}) {
-  const { currentUser } = useContext(UserContext);
+  const { currentUser, setCurrentUser } = useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
 
   const initials = `${currentUser?.first_name?.[0] ?? ""}${currentUser?.last_name?.[0] ?? ""}`.toUpperCase();
   const fullName = `${currentUser?.first_name ?? ""} ${currentUser?.last_name ?? ""}`.trim();
 
-  const handleSignOut = () => {
-
+  const handleSignOut = async () => {
+    api.post("/signout");
+    setCurrentUser(null);
     setShowSignOutModal(false);
   };
 

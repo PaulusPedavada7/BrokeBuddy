@@ -116,6 +116,20 @@ def signin(user: UserSignIn, response: Response, db: Session = Depends(get_db)):
 
     return {"message": "Signed in successful"}
 
+@app.post("/signout")
+def signout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="lax"
+    )
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        samesite="lax"
+    )
+    return {"message": "Signed out successfully"}
+
 # Endpoint for refreshing tokens
 @app.post("/refresh")
 def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
