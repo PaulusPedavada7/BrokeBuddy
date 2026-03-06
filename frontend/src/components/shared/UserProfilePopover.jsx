@@ -108,7 +108,7 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
               }}
               className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 transition-colors cursor-pointer"
             >
-              <ArrowRightStartOnRectangleIcon className="w-4 h-4 shrink-0 text-red-400" />
+              <ArrowRightStartOnRectangleIcon className="w-4 h-4 shrink-0 text-red-500" />
               Sign out
             </button>
           </div>
@@ -137,13 +137,13 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowSignOutModal(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-lg dark:text-white border border-gray-800 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSignOut}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium bg-red-500 hover:bg-red-600 text-white transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-lg text-gray-100 bg-red-600 dark:bg-red-500 hover:bg-red-700 dark:hover:bg-red-400 transition-colors cursor-pointer"
               >
                 Confirm
               </button>
