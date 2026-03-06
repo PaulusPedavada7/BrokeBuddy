@@ -6,14 +6,21 @@ import {
   EnvelopeIcon,
   Cog6ToothIcon,
   ArrowRightStartOnRectangleIcon,
+  ExclamationTriangleIcon,
  } from "@heroicons/react/24/solid";
 
 export default function UserProfilePopover({isOpen: sidebarOpen}) {
   const { currentUser } = useContext(UserContext);
   const [open, setOpen] = useState(false);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
 
   const initials = `${currentUser?.first_name?.[0] ?? ""}${currentUser?.last_name?.[0] ?? ""}`.toUpperCase();
   const fullName = `${currentUser?.first_name ?? ""} ${currentUser?.last_name ?? ""}`.trim();
+
+  const handleSignOut = () => {
+
+    setShowSignOutModal(false);
+  };
 
   return (
     <div className="relative">
@@ -94,7 +101,13 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
 
           {/* Sign out */}
           <div className="p-1.5">
-            <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 transition-colors cursor-pointer">
+            <button
+              onClick={() => {
+                setOpen(false);
+                setShowSignOutModal(true);
+              }}
+              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 transition-colors cursor-pointer"
+            >
               <ArrowRightStartOnRectangleIcon className="w-4 h-4 shrink-0 text-red-400" />
               Sign out
             </button>
@@ -102,7 +115,42 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
         </div>
       )}
 
-      {/* ADD A MODAL TO CONFIRM SIGN OUT */}
+      {/* Sign out modal */}
+      {showSignOutModal && (
+        <div
+          onClick={() => setShowSignOutModal(false)}
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/50"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-6 w-full max-w-md"
+          >
+            {/* Header */}
+            <ExclamationTriangleIcon className="w-6 h-6 mb-3 text-red-500" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Signing Out</h2>
+            
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              Are you sure you want to sign out?
+            </p>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowSignOutModal(false)}
+                className="rounded-xl px-4 py-2.5 text-sm font-medium bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="rounded-xl px-4 py-2.5 text-sm font-medium bg-red-500 hover:bg-red-600 text-white transition-colors cursor-pointer"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
