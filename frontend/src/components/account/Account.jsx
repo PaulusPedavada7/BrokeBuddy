@@ -13,7 +13,7 @@ export default function Account() {
       <Sidebar />
 
       <div className="flex-1 overflow-auto">
-        <div className="flex flex-col min-w-0 p-8 gap-18 max-w-4xl w-full mx-auto">
+        <div className="flex flex-col min-w-0 p-8 gap-6 max-w-4xl w-full mx-auto">
           {/* Page Header */}
           <div className="mb-4">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
