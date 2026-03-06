@@ -45,6 +45,7 @@ export default function ProfileForm({ currentUser, setCurrentUser }) {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="First name"
+              required
               className="w-full rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-900 px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
@@ -57,6 +58,7 @@ export default function ProfileForm({ currentUser, setCurrentUser }) {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Last name"
+              required
               className="w-full rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-900 px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
@@ -69,7 +71,8 @@ export default function ProfileForm({ currentUser, setCurrentUser }) {
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Last name"
+            placeholder="Email"
+            required
             className="w-full rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-900 px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
         </div>

@@ -51,7 +51,7 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
 
         {/* Chevron icon */}
         {sidebarOpen && (
-          <span className={`shrink-0 text-gray-300 transition-transform duration-200 ${open ? "rotate-90" : "-rotate-90"}`}>
+          <span className={`shrink-0 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${open ? "rotate-90" : "-rotate-90"}`}>
             <ChevronRightIcon className="w-3.5 h-3.5" />
           </span>
         )}
