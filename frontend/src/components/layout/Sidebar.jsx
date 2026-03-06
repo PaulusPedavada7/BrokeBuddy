@@ -65,10 +65,10 @@ export default function Sidebar() {
             {isOpen && <span>Transactions</span>}
           </Link>
 
-          <a href="#" className={navLinkClass("/profile")}>
+          <Link to="/account" className={navLinkClass("/account")}>
             <UserIcon className="w-6 h-6 shrink-0" />
-            {isOpen && <span>Profile</span>}
-          </a>
+            {isOpen && <span>Account</span>}
+          </Link>
         </nav>
       </div>
 
