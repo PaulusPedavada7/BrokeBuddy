@@ -140,7 +140,7 @@ export default function UserProfilePopover({isOpen: sidebarOpen}) {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowSignOutModal(false)}
-                className="px-4 py-2 rounded-lg dark:text-white border border-gray-800 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-lg dark:text-white border border-gray-300 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
