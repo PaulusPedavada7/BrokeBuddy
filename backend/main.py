@@ -7,8 +7,8 @@ from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from db import get_db, engine, Base, User, Transaction
-from schemas import UserCreate, UserSignIn, TransactionCreate, TransactionUpdate
+from db import RecurringTransaction, get_db, engine, Base, User, Transaction
+from schemas import RecurringTransactionCreate, UserCreate, UserSignIn, TransactionCreate, TransactionUpdate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -247,3 +247,23 @@ def delete_transaction(transaction_id: int, current_user: User = Depends(get_cur
         raise HTTPException(status_code=500, detail=str(e))
     
     return {"message": "Transaction deleted successfully"} 
+
+# Endpoint to add a recurring transaction
+@app.post("/addrecurringtransaction")
+def add_recurring_transaction(recurring_transaction: RecurringTransactionCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    new_recurring_transaction = RecurringTransaction(
+        userid=current_user.id,
+        amount=recurring_transaction.amount,
+        category=recurring_transaction.category,
+        date=recurring_transaction.date,
+        isPaid=recurring_transaction.isPaid
+    )
+    try:
+        db.add(new_recurring_transaction)
+        db.commit()
+        # db.refresh(new_recurring_transaction)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Recurring transaction added successfully", "transaction_id": new_recurring_transaction.id}

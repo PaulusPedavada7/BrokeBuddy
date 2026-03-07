@@ -1,25 +1,66 @@
 import { useState } from "react";
 import { CATEGORY_CONFIG, FREQUENCIES } from "../../constants.js";
+import api from "../../axios.jsx";
 
 export function AddRecurringModal({ onClose, onAdd }) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [frequency, setFrequency] = useState("monthly");
-  const [nextDue, setNextDue] = useState("");
+  const [dueDay, setDueDay] = useState(""); // <-- now just a number (1-31)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  // Build a date string for the current month using the chosen day
+  function buildDueDate(day) {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = now.getFullYear();
+    const paddedDay = String(day).padStart(2, "0");
+    return `${year}-${month}-${paddedDay}`;
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!description || !amount || !category || !nextDue) return;
-    onAdd({
-      id: Date.now(),
-      description,
-      amount: parseFloat(amount),
-      category,
-      frequency,
-      nextDue,
-    });
-    onClose();
+    if (!description || !amount || !category || !dueDay) return;
+
+    const day = parseInt(dueDay, 10);
+    if (day < 1 || day > 31) {
+      setError("Please enter a valid day between 1 and 31.");
+      return;
+    }
+
+    const nextDue = buildDueDate(day);
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await api.post("/addrecurringtransaction", {
+        amount: parseFloat(amount),
+        category: category,
+        date: parseInt(dueDay, 10),
+        isPaid: false,
+      });
+
+      onAdd({
+        id: res.data.transaction_id,
+        description,
+        amount: parseFloat(amount),
+        category,
+        frequency,
+        nextDue,
+        dueDay: day,
+      });
+
+      onClose();
+    } catch (err) {
+      setError(
+        err.response?.data?.detail ?? "Something went wrong. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -30,6 +71,7 @@ export function AddRecurringModal({ onClose, onAdd }) {
           <h2 className="text-xl font-semibold dark:text-white mb-4">
             Add Recurring Transaction
           </h2>
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="text"
@@ -92,32 +134,68 @@ export function AddRecurringModal({ onClose, onAdd }) {
               </div>
             </div>
 
+            {/* Replaced date picker with a numeric day input */}
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-500 dark:text-gray-400">
-                Next Due Date
+                Due Day of Month
               </label>
               <input
-                type="date"
-                value={nextDue}
-                onChange={(e) => setNextDue(e.target.value)}
+                type="number"
+                min="1"
+                max="31"
+                placeholder="e.g. 13"
+                value={dueDay}
+                onChange={(e) => setDueDay(e.target.value)}
                 className="border rounded-lg px-3 py-2 dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                 required
               />
+              {dueDay && (
+                <p className="text-xs text-gray-400 dark:text-zinc-500">
+                  Next due: {buildDueDate(dueDay)}
+                </p>
+              )}
             </div>
+
+            {error && (
+              <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
+            )}
 
             <div className="flex justify-end gap-2 mt-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg border dark:text-white dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700"
+                disabled={loading}
+                className="px-4 py-2 rounded-lg border dark:text-white dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-zinc-700 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
+                disabled={loading}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 disabled:opacity-50 flex items-center gap-2"
               >
-                Add
+                {loading && (
+                  <svg
+                    className="w-4 h-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                    />
+                  </svg>
+                )}
+                {loading ? "Adding..." : "Add"}
               </button>
             </div>
           </form>
