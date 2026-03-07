@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../../App.jsx";
-import ThemeToggle from "../shared/ThemeToggle.jsx";
-import UserProfilePopover from "../shared/UserProfilePopover.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
+import UserProfilePopover from "./UserProfilePopover.jsx";
 import {
   Bars3Icon,
   XMarkIcon,

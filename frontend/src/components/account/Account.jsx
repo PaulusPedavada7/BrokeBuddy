@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import Sidebar from "../layout/Sidebar";
+import Sidebar from "../sidebar/Sidebar";
 import DeleteSection from "./DeleteSection";
 import PasswordForm from "./PasswordForm";
 import ProfileForm from "./ProfileForm";

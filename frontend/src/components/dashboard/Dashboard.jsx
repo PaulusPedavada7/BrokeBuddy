@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { UserContext } from "../../App.jsx";
-import Sidebar from "../layout/Sidebar.jsx";
+import Sidebar from "../sidebar/Sidebar.jsx";
 import AddExpense from "../modals/AddExpense.jsx";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { CATEGORY_CONFIG, CATEGORY_BADGE, MONTHS } from "../../constants.js";

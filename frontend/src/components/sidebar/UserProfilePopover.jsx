@@ -1,7 +1,7 @@
 import { useState, useContext } from "react"
 import { UserContext } from "../../App.jsx";
 import api from "../../axios.jsx";
-import ThemeToggle from "../shared/ThemeToggle.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
 import {
   ChevronRightIcon,
   EnvelopeIcon,

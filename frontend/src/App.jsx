@@ -1,9 +1,9 @@
 import React, { useState, createContext, useEffect, useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./components/dashboard/Dashboard";
-import Signin from "./components/pages/Signin.jsx";
-import Signup from "./components/pages/Signup.jsx";
-import Transactions from "./components/pages/Transactions.jsx";
+import Signin from "./components/Signin.jsx";
+import Signup from "./components/Signup.jsx";
+import Transactions from "./components/Transactions.jsx";
 import Account from "./components/account/Account.jsx";
 import api from "./axios.jsx";
 
