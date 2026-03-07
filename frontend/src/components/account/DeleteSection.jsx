@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline"
+import api from "../../axios";
 
-export default function PasswordForm() {
+export default function PasswordForm({ setCurrentUser }) {
   const [showModal, setShowModal] = useState(false)
 
   const handleDelete = async () => {
-
+    await api.delete("/deleteaccount");
+    setCurrentUser(null);
     setShowModal(false);
   };
 
@@ -42,7 +44,7 @@ export default function PasswordForm() {
     {/* Delete account modal */}
     {showModal && (
       <div
-        onClick={() => setShowSignOutModal(false)}
+        onClick={() => setShowModal(false)}
         className="fixed inset-0 z-40 flex items-center justify-center bg-black/50"
       >
         <div

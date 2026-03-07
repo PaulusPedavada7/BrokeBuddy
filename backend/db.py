@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, String, Integer, Float, DateTime, ForeignKey
 from datetime import datetime
-from sqlalchemy.orm import sessionmaker, DeclarativeBase, mapped_column, Mapped
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, mapped_column, Mapped, relationship
 
 # Loads environment variables from .env
 load_dotenv()
@@ -44,7 +44,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    userid: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    userid: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
     category: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)

@@ -301,3 +301,14 @@ def update_password(updates: PasswordUpdate, current_user: User = Depends(get_cu
         raise HTTPException(status_code=500, detail=str(e))
     
     return {"message": "Password updated successfully"}
+
+@app.delete("/deleteaccount")
+def delete_account(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        db.delete(current_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Account deleted successfully"}

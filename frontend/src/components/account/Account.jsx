@@ -26,7 +26,7 @@ export default function Account() {
 
           <ProfileForm currentUser={currentUser} setCurrentUser={setCurrentUser} />
           <PasswordForm />
-          <DeleteSection />
+          <DeleteSection setCurrentUser={setCurrentUser} />
         </div>
       </div>
     </div>
