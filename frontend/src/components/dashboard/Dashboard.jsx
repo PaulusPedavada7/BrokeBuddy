@@ -27,6 +27,7 @@ function Dashboard() {
     setSelectedYear,
     availableYears,
     total,
+    totalDeposits,
     largest,
     categoryTotals,
     recent,
@@ -76,7 +77,7 @@ function Dashboard() {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Add Expense
+              Add Transaction
             </button>
           </div>
 
@@ -144,17 +145,19 @@ function Dashboard() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
             <StatCard
               label="Total Spent"
-              value={`$${total.toFixed(2)}`}
+              value={`-$${Math.abs(total).toFixed(2)}`}
               sub={filterLabel}
+              accent="text-red-500"
             />
             <StatCard
-              label="Transactions"
-              value={filtered.length}
-              sub="in selected period"
+              label="Total Deposits"
+              value={`$${totalDeposits.toFixed(2)}`}
+              sub={filterLabel}
+              accent="text-green-500"
             />
             <StatCard
               label="Largest Expense"
-              value={largest ? `$${largest.amount.toFixed(2)}` : "—"}
+              value={largest ? `-$${Math.abs(largest.amount).toFixed(2)}` : "—"}
               sub={largest?.description ?? ""}
               accent="text-red-500"
             />
@@ -263,8 +266,14 @@ function Dashboard() {
                           </p>
                         </div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                        -${t.amount.toFixed(2)}
+                      <span
+                        className={`text-sm font-semibold ${
+                          t.amount < 0 ? "text-red-500" : "text-green-500"
+                        }`}
+                      >
+                        {t.amount < 0
+                          ? `-$${Math.abs(t.amount).toFixed(2)}`
+                          : `$${t.amount.toFixed(2)}`}
                       </span>
                     </li>
                   ))}

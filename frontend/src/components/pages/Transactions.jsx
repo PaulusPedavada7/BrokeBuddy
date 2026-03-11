@@ -460,8 +460,12 @@ function Transactions() {
                           }
                         />
                       </td>
-                      <td className="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">
-                        ${t.amount.toFixed(2)}
+                      <td
+                        className={`px-6 py-4 text-right font-semibold ${t.amount < 0 ? "text-red-500" : "text-green-500"}`}
+                      >
+                        {t.amount < 0
+                          ? `-$${Math.abs(t.amount).toFixed(2)}`
+                          : `$${t.amount.toFixed(2)}`}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button

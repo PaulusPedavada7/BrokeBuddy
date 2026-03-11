@@ -53,19 +53,37 @@ export function useDashboard() {
   });
 
   // Derived stats
-  const total = filtered.reduce((sum, t) => sum + t.amount, 0);
+  const withdrawals = filtered.filter((t) => t.amount < 0);
+  const deposits = filtered.filter((t) => t.amount > 0);
 
-  const largest = filtered.reduce(
-    (max, t) => (t.amount > (max?.amount ?? 0) ? t : max),
+  const total = withdrawals.reduce((sum, t) => sum + t.amount, 0); // negative sum
+  const totalDeposits = deposits.reduce((sum, t) => sum + t.amount, 0);
+
+  const largest = withdrawals.reduce(
+    (max, t) => (t.amount < (max?.amount ?? 0) ? t : max),
     null,
   );
 
-  const categoryTotals = Object.entries(CATEGORY_CONFIG)
-    .map(([key, { label, color }]) => {
-      const value = filtered
-        .filter((t) => t.category === key)
-        .reduce((s, t) => s + t.amount, 0);
-      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+  const categoryTotals = Object.entries(
+    withdrawals.reduce((acc, t) => {
+      if (!acc[t.category]) acc[t.category] = 0;
+      acc[t.category] += Math.abs(t.amount); // use absolute values for the chart
+      return acc;
+    }, {}),
+  )
+    .map(([key, value]) => {
+      const { label, color } = CATEGORY_CONFIG[key] ?? {
+        label: key,
+        color: "#94a3b8",
+      };
+      const totalWithdrawals = withdrawals.reduce(
+        (s, t) => s + Math.abs(t.amount),
+        0,
+      );
+      const percent =
+        totalWithdrawals > 0
+          ? ((value / totalWithdrawals) * 100).toFixed(1)
+          : "0.0";
       return { name: label, value, color, percent };
     })
     .filter((c) => c.value > 0);
@@ -102,6 +120,7 @@ export function useDashboard() {
     availableYears,
     // Derived
     total,
+    totalDeposits,
     largest,
     categoryTotals,
     recent,
