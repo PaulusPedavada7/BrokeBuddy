@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db import RecurringTransaction, get_db, engine, Base, User, Transaction
-from schemas import RecurringTransactionCreate, UserCreate, UserSignIn, TransactionCreate, TransactionUpdate
+from schemas import RecurringTransactionCreate, UserCreate, UserSignIn, TransactionCreate, TransactionUpdate, ProfileUpdate, PasswordUpdate
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
@@ -115,6 +115,20 @@ def signin(user: UserSignIn, response: Response, db: Session = Depends(get_db)):
     )
 
     return {"message": "Signed in successful"}
+
+@app.post("/signout")
+def signout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="lax"
+    )
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        samesite="lax"
+    )
+    return {"message": "Signed out successfully"}
 
 # Endpoint for refreshing tokens
 @app.post("/refresh")
@@ -246,24 +260,55 @@ def delete_transaction(transaction_id: int, current_user: User = Depends(get_cur
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     
-    return {"message": "Transaction deleted successfully"} 
+    return {"message": "Transaction deleted successfully"}
 
-# Endpoint to add a recurring transaction
-@app.post("/addrecurringtransaction")
-def add_recurring_transaction(recurring_transaction: RecurringTransactionCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    new_recurring_transaction = RecurringTransaction(
-        userid=current_user.id,
-        amount=recurring_transaction.amount,
-        category=recurring_transaction.category,
-        date=recurring_transaction.date,
-        isPaid=recurring_transaction.isPaid
-    )
+@app.patch("/updateprofile")
+def update_profile(updates: ProfileUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Raise an exception if email already in use (id != check to prevent returning the current user)
+    if db.query(User).filter(User.email == updates.email, User.id != current_user.id).first():
+        raise HTTPException(status_code=400, detail="Email already in use")
+    
+    current_user.first_name = updates.first_name
+    current_user.last_name = updates.last_name
+    current_user.email = updates.email
+
     try:
-        db.add(new_recurring_transaction)
         db.commit()
-        # db.refresh(new_recurring_transaction)
+        db.refresh(current_user)
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     
-    return {"message": "Recurring transaction added successfully", "transaction_id": new_recurring_transaction.id}
+    return {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "email": current_user.email,
+    }
+
+@app.patch("/updatepassword")
+def update_password(updates: PasswordUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not pwd_context.verify(updates.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+    
+    current_user.hashed_password = pwd_context.hash(updates.new_password)
+
+    try:
+        db.commit()
+        db.refresh(current_user)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Password updated successfully"}
+
+@app.delete("/deleteaccount")
+def delete_account(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        db.delete(current_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"message": "Account deleted successfully"}

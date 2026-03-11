@@ -4,6 +4,8 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Signin from "./components/pages/Signin.jsx";
 import Signup from "./components/pages/Signup.jsx";
 import Transactions from "./components/pages/Transactions.jsx";
+import Account from "./components/account/Account.jsx";
+import api from "./axios.jsx";
 
 export const UserContext = createContext(null);
 
@@ -18,17 +20,10 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/me", {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
-        return null;
-      })
-      .then((data) => {
-        if (data) setCurrentUser(data);
-      })
-      .finally(() => setLoading(false));
+    api.get("/me")
+      .then(res => setCurrentUser(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, []);
 
   if (loading) return null;
@@ -53,6 +48,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Transactions />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
               </ProtectedRoute>
             }
           />
