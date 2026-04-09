@@ -30,6 +30,7 @@ app.add_middleware(SlowAPIMiddleware)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECURE_COOKIES = os.getenv("SECURE_COOKIES", "false").lower() == "true"
+COOKIE_SAMESITE = "none" if SECURE_COOKIES else "lax"
 
 Base.metadata.create_all(bind=engine)
 
@@ -122,14 +123,14 @@ def signin(request: Request, user: UserSignIn, response: Response, db: Session =
         value=access_token,
         httponly=True,
         secure=SECURE_COOKIES,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
         secure=SECURE_COOKIES,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE
     )
 
     return {"message": "Signed in successful"}
@@ -139,12 +140,12 @@ def signout(response: Response):
     response.delete_cookie(
         key="access_token",
         httponly=True,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE
     )
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE
     )
     return {"message": "Signed out successfully"}
 
@@ -182,14 +183,14 @@ def refresh_token(request: Request, response: Response, db: Session = Depends(ge
         value=new_access_token,
         httponly=True,
         secure=SECURE_COOKIES,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE
     )
     response.set_cookie(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
         secure=SECURE_COOKIES,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE
     )
 
     return {"message": "Access token refreshed"}
