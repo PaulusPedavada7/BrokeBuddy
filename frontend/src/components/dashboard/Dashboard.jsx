@@ -7,7 +7,7 @@ import { CATEGORY_CONFIG, CATEGORY_BADGE, MONTHS } from "../../constants.js";
 
 import { useDashboard } from "./useDashboard.js";
 import { StatCard } from "./StatCard.jsx";
-import { CustomTooltip } from "./CustomTooltip.jsx";
+import { CustomTooltip } from "./CustomToolTip.jsx";
 import { RecurringRow } from "./RecurringRow.jsx";
 import { BudgetCard } from "./BudgetCard.jsx";
 import { AddRecurringModal } from "../modals/AddRecurringModal.jsx";
