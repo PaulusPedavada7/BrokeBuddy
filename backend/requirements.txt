@@ -26,6 +26,9 @@ psycopg2-binary==2.9.11
 SQLAlchemy==2.0.35
 alembic==1.13.2    # for DB migrations (optional but recommended)
 
+# Rate limiting
+slowapi==0.1.9
+
 # Optional but recommended
 python-dotenv==1.0.1    # load env vars (for DB URLs, secrets, etc.)
 pydantic==2.9.2         # data validation models for FastAPI

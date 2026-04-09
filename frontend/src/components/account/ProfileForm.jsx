@@ -68,7 +68,7 @@ export default function ProfileForm({ currentUser, setCurrentUser }) {
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
           <input
-            type="text"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"

@@ -8,7 +8,8 @@ import { CATEGORY_CONFIG, CATEGORY_BADGE, MONTHS } from "../../constants.js";
 import { useDashboard } from "./useDashboard.js";
 import { StatCard } from "./StatCard.jsx";
 import { CustomTooltip } from "./CustomTooltip.jsx";
-import { RecurringCard } from "./RecurringCard.jsx";
+import { RecurringRow } from "./RecurringRow.jsx";
+import { BudgetCard } from "./BudgetCard.jsx";
 import { AddRecurringModal } from "../modals/AddRecurringModal.jsx";
 
 function Dashboard() {
@@ -36,6 +37,11 @@ function Dashboard() {
     refreshTransactions,
     addRecurring,
     deleteRecurring,
+    updateRecurring,
+    budgets,
+    setBudget,
+    deleteBudget,
+    currentMonthSpending,
   } = useDashboard();
 
   function handleAddClose() {
@@ -156,10 +162,10 @@ function Dashboard() {
               accent="text-green-500"
             />
             <StatCard
-              label="Largest Expense"
-              value={largest ? `-$${Math.abs(largest.amount).toFixed(2)}` : "—"}
-              sub={largest?.description ?? ""}
-              accent="text-red-500"
+              label="Income vs Expenses"
+              value={`${totalDeposits - Math.abs(total) >= 0 ? "+" : "-"}$${Math.abs(totalDeposits - Math.abs(total)).toFixed(2)}`}
+              sub={totalDeposits - Math.abs(total) >= 0 ? "Surplus" : "Deficit"}
+              accent={totalDeposits - Math.abs(total) >= 0 ? "text-green-500" : "text-red-500"}
             />
           </div>
 
@@ -256,6 +262,7 @@ function Dashboard() {
                             {new Date(t.date).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
+                              timeZone: "UTC",
                             })}
                             {" · "}
                             <span
@@ -281,8 +288,16 @@ function Dashboard() {
               )}
             </div>
 
+            {/* Budget targets */}
+            <BudgetCard
+              budgets={budgets}
+              currentMonthSpending={currentMonthSpending}
+              onSave={setBudget}
+              onDelete={deleteBudget}
+            />
+
             {/* Recurring transactions */}
-            <div className="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm p-6">
+            <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
@@ -335,16 +350,15 @@ function Dashboard() {
                   <p className="text-sm">No recurring transactions yet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {[...recurring]
-                    .sort((a, b) => new Date(a.nextDue) - new Date(b.nextDue))
-                    .map((r) => (
-                      <RecurringCard
-                        key={r.id}
-                        r={r}
-                        onDelete={deleteRecurring}
-                      />
-                    ))}
+                <div className="rounded-xl border border-gray-100 dark:border-zinc-700 overflow-hidden">
+                  {[...recurring].map((r) => (
+                    <RecurringRow
+                      key={r.id}
+                      r={r}
+                      onDelete={deleteRecurring}
+                      onUpdate={updateRecurring}
+                    />
+                  ))}
                 </div>
               )}
             </div>

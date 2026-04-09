@@ -3,55 +3,36 @@ import { CATEGORY_CONFIG, FREQUENCIES } from "../../constants.js";
 import { buildNextDue, formatNextDue } from "../../utils/recurringUtils.js";
 import api from "../../axios.jsx";
 
-export function AddRecurringModal({ onClose, onAdd }) {
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
-  const [frequency, setFrequency] = useState("monthly");
-  const [dueDay, setDueDay] = useState("");
+export function EditRecurringModal({ r, onClose, onUpdate }) {
+  const [description, setDescription] = useState(r.description);
+  const [amount, setAmount] = useState(r.amount.toString());
+  const [category, setCategory] = useState(r.category);
+  const [frequency, setFrequency] = useState(r.frequency);
+  const [dueDay, setDueDay] = useState(r.dueDay.toString());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!description || !amount || !category || !dueDay || !frequency) return;
-
     const day = parseInt(dueDay, 10);
     if (day < 1 || day > 31) {
       setError("Please enter a valid day between 1 and 31.");
       return;
     }
-
-    const nextDue = formatNextDue(buildNextDue(day));
-
     setLoading(true);
     setError("");
-
     try {
-      const res = await api.post("/addrecurringtransaction", {
-        amount: parseFloat(amount),
-        category: category,
-        description: description,
-        date: parseInt(dueDay, 10),
-        isPaid: false,
-        frequency: frequency,
-      });
-
-      onAdd({
-        id: res.data.transaction_id,
+      const res = await api.patch(`/updaterecurringtransaction/${r.id}`, {
         description,
         amount: parseFloat(amount),
         category,
         frequency,
-        nextDue,
-        dueDay: day,
+        date: day,
       });
-
+      onUpdate(res.data);
       onClose();
     } catch (err) {
-      setError(
-        err.response?.data?.detail ?? "Something went wrong. Please try again.",
-      );
+      setError(err.response?.data?.detail ?? "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -63,9 +44,8 @@ export function AddRecurringModal({ onClose, onAdd }) {
       <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
         <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-6 w-full max-w-md pointer-events-auto">
           <h2 className="text-xl font-semibold dark:text-white mb-4">
-            Add Recurring Transaction
+            Edit Recurring Transaction
           </h2>
-
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="text"
@@ -88,28 +68,23 @@ export function AddRecurringModal({ onClose, onAdd }) {
             />
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-500 dark:text-gray-400">
-                Category
-              </label>
+              <label className="text-sm text-gray-500 dark:text-gray-400">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="border rounded-lg px-3 py-2 dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
                 required
               >
-                <option value="">Select a category</option>
-                {Object.entries(CATEGORY_CONFIG).map(([key, { label }]) => (
-                  <option key={key} value={key}>
-                    {label}
-                  </option>
-                ))}
+                {Object.entries(CATEGORY_CONFIG)
+                  .filter(([key]) => key !== "deposit")
+                  .map(([key, { label }]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
               </select>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-500 dark:text-gray-400">
-                Frequency
-              </label>
+              <label className="text-sm text-gray-500 dark:text-gray-400">Frequency</label>
               <div className="flex gap-2">
                 {FREQUENCIES.map((f) => (
                   <button
@@ -128,16 +103,12 @@ export function AddRecurringModal({ onClose, onAdd }) {
               </div>
             </div>
 
-            {/* Replaced date picker with a numeric day input */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-500 dark:text-gray-400">
-                Due Day of Month
-              </label>
+              <label className="text-sm text-gray-500 dark:text-gray-400">Due Day of Month</label>
               <input
                 type="number"
                 min="1"
                 max="31"
-                placeholder="e.g. 13"
                 value={dueDay}
                 onChange={(e) => setDueDay(e.target.value)}
                 className="border rounded-lg px-3 py-2 dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
@@ -150,9 +121,7 @@ export function AddRecurringModal({ onClose, onAdd }) {
               )}
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
 
             <div className="flex justify-end gap-2 mt-2">
               <button
@@ -166,30 +135,9 @@ export function AddRecurringModal({ onClose, onAdd }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 disabled:opacity-50"
               >
-                {loading && (
-                  <svg
-                    className="w-4 h-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
-                    />
-                  </svg>
-                )}
-                {loading ? "Adding..." : "Add"}
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </form>

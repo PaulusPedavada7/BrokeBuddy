@@ -3,7 +3,7 @@ export const CATEGORY_CONFIG = {
   transport: { label: "Travel", color: "#3b82f6" },
   entertainment: { label: "Entertainment", color: "#a855f7" },
   utilities: { label: "Utilities", color: "#22c55e" },
-  subscriptions: { label: "Subscriptions", color: "#ec4899" },
+  bills: { label: "Bills", color: "#ec4899" },
   groceries: { label: "Groceries", color: "#84cc16" },
   shopping: { label: "Shopping", color: "#f59e0b" },
   education: { label: "Education", color: "#06b6d4" },
@@ -20,8 +20,7 @@ export const CATEGORY_BADGE = {
     "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
   utilities:
     "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  subscriptions:
-    "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
+  bills: "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
   groceries: "bg-lime-100 text-lime-700 dark:bg-lime-900/40 dark:text-lime-300",
   shopping:
     "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",

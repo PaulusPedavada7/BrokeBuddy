@@ -57,9 +57,18 @@ class RecurringTransaction(Base):
     userid: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
     category: Mapped[str] = mapped_column(String, nullable=False)
-    date: Mapped[int] = mapped_column(Integer, nullable=False)
-    isPaid: Mapped[bool] = mapped_column(nullable=False)
-    
+    dueDate: Mapped[int] = mapped_column(Integer, nullable=False)
+    frequency: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    nextDue: Mapped[str] = mapped_column(String, nullable=False)
    
+
+class Budget(Base):
+    __tablename__ = "budgets"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    userid: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    category: Mapped[str] = mapped_column(String, nullable=False)
+    amount: Mapped[float] = mapped_column(Float, nullable=False)
 
 # Defines the tables (models). NOTE: Need to run db.py to update DB schema

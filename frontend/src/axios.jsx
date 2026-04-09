@@ -6,27 +6,45 @@ const api = axios.create({
 });
 
 let isRefreshing = false;
+let failedQueue = [];
+
+function processQueue(error) {
+    failedQueue.forEach(({ resolve, reject }) => {
+        if (error) reject(error);
+        else resolve();
+    });
+    failedQueue = [];
+}
 
 // Interceptor to automatically refresh token on 401 responses
 api.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
-        const isAuthEndpoint = ["/refresh", "/signin", "/me"].includes(originalRequest.url)
+        const isAuthEndpoint = ["/refresh", "/signin", "/me", "/signout"].includes(originalRequest.url);
 
-        // Try to refresh token if 401 error occurs
         if (error.response?.status === 401 && !isAuthEndpoint && !originalRequest._retry) {
-            if (isRefreshing) return Promise.reject(error);
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then(() => api.request(originalRequest))
+                    .catch(err => Promise.reject(err));
+            }
+
             isRefreshing = true;
             originalRequest._retry = true;
+
             try {
                 await api.post('/refresh');
+                processQueue(null);
                 isRefreshing = false;
-                console.log("Token refreshed successfully");
                 return api.request(originalRequest);
-            } catch {
+            } catch (err) {
+                processQueue(err);
                 isRefreshing = false;
                 window.location.href = '/signin';
+                return Promise.reject(err);
             }
         }
         return Promise.reject(error);

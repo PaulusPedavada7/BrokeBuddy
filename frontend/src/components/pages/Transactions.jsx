@@ -258,9 +258,13 @@ function Transactions() {
 
   const filtered = transactions.filter((t) => {
     const d = new Date(t.date);
+
+    const month = d.getUTCMonth(); // ← UTC instead of getMonth()
+    const year = d.getUTCFullYear(); // ← UTC instead of getFullYear()
+
     if (filterMode === "month")
-      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
-    if (filterMode === "year") return d.getFullYear() === selectedYear;
+      return month === selectedMonth && year === selectedYear;
+    if (filterMode === "year") return year === selectedYear;
     return true;
   });
 
@@ -446,6 +450,7 @@ function Transactions() {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
+                          timeZone: "UTC",
                         })}
                       </td>
                       <td className="px-6 py-4 font-medium text-gray-800 dark:text-white">
