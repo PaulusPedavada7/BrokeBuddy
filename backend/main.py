@@ -49,7 +49,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        *([os.getenv("FRONTEND_URL")] if os.getenv("FRONTEND_URL") else []),
+        "https://broke-buddy-git-main-pauluspedavada7s-projects.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
