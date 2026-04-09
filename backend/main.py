@@ -46,7 +46,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Allow React to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React dev server
+    allow_origins=[
+        "http://localhost:5173",
+        "https://broke-buddy-77albnbqu-pauluspedavada7s-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Content-Type"],
