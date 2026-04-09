@@ -1,39 +1,17 @@
-#DEPENEDENCIES
-# Core backend framework
+# Core
 fastapi==0.115.2
 uvicorn[standard]==0.31.0
+python-dotenv==1.0.1
+pydantic==2.9.2
+
+# Auth
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 python-jose[cryptography]==3.3.0
 
-# PDF parsing and data handling
-watchdog==2.1.5
-pdfplumber==0.11.4    
-pandas==2.2.3
-numpy==1.26.4
-
-#AI tools
-google-generativeai
-
-setfit>=0.7.0
-scikit-learn>=1.2.0
-pandas>=2.0.0
-torch>=2.1.0
-sentence-transformers>=2.2.2
-
-# Database & ORM
+# Database
 psycopg2-binary==2.9.11
 SQLAlchemy==2.0.35
-alembic==1.13.2    # for DB migrations (optional but recommended)
 
 # Rate limiting
 slowapi==0.1.9
-
-# Optional but recommended
-python-dotenv==1.0.1    # load env vars (for DB URLs, secrets, etc.)
-pydantic==2.9.2         # data validation models for FastAPI
-
-# Development tools
-black==24.8.0           # code formatter
-flake8==7.1.1           # linting
-pytest==8.3.3           # testing
