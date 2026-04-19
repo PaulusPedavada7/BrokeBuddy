@@ -2,7 +2,18 @@ import { useContext, useState } from "react";
 import { UserContext } from "../../App.jsx";
 import Sidebar from "../layout/Sidebar.jsx";
 import AddExpense from "../modals/AddExpense.jsx";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 import { CATEGORY_CONFIG, CATEGORY_BADGE, MONTHS } from "../../constants.js";
 
 import { useDashboard } from "./useDashboard.js";
@@ -16,8 +27,10 @@ function Dashboard() {
   const { currentUser } = useContext(UserContext);
   const [showModal, setShowModal] = useState(false);
   const [showRecurringModal, setShowRecurringModal] = useState(false);
+  const [spendingTimeFilter, setSpendingTimeFilter] = useState("30D");
 
   const {
+    transactions,
     filtered,
     recurring,
     filterMode,
@@ -43,6 +56,78 @@ function Dashboard() {
     deleteBudget,
     currentMonthSpending,
   } = useDashboard();
+
+  const spendingOverTimeData = (() => {
+    const withdrawals = transactions.filter((t) => t.amount < 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (spendingTimeFilter === "7D" || spendingTimeFilter === "30D") {
+      const days = spendingTimeFilter === "7D" ? 7 : 30;
+      return Array.from({ length: days }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() - (days - 1 - i));
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        const amount = withdrawals
+          .filter((t) => t.date.slice(0, 10) === dateStr)
+          .reduce((s, t) => s + Math.abs(t.amount), 0);
+        return { label: `${d.getMonth() + 1}/${d.getDate()}`, amount };
+      });
+    }
+
+    if (spendingTimeFilter === "3M") {
+      return Array.from({ length: 13 }, (_, i) => {
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - (12 - i) * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        const label = `${MONTHS[weekStart.getMonth()].slice(0, 3)} ${weekStart.getDate()}`;
+        const amount = withdrawals
+          .filter((t) => {
+            const d = new Date(t.date.slice(0, 10) + "T00:00:00");
+            return d >= weekStart && d <= weekEnd;
+          })
+          .reduce((s, t) => s + Math.abs(t.amount), 0);
+        return { label, amount };
+      });
+    }
+
+    let numMonths;
+    if (spendingTimeFilter === "6M") numMonths = 6;
+    else if (spendingTimeFilter === "1Y") numMonths = 12;
+    else {
+      if (withdrawals.length === 0) return [];
+      const earliest = withdrawals
+        .map((t) => new Date(t.date.slice(0, 10) + "T00:00:00"))
+        .reduce((min, d) => (d < min ? d : min), new Date());
+      numMonths =
+        (today.getFullYear() - earliest.getFullYear()) * 12 +
+        (today.getMonth() - earliest.getMonth()) +
+        1;
+    }
+
+    return Array.from({ length: numMonths }, (_, i) => {
+      const d = new Date(
+        today.getFullYear(),
+        today.getMonth() - (numMonths - 1 - i),
+        1,
+      );
+      const label = `${MONTHS[d.getMonth()].slice(0, 3)} '${String(d.getFullYear()).slice(2)}`;
+      const amount = withdrawals
+        .filter((t) => {
+          const td = new Date(t.date.slice(0, 10) + "T00:00:00");
+          return (
+            td.getMonth() === d.getMonth() &&
+            td.getFullYear() === d.getFullYear()
+          );
+        })
+        .reduce((s, t) => s + Math.abs(t.amount), 0);
+      return { label, amount };
+    });
+  })();
 
   function handleAddClose() {
     setShowModal(false);
@@ -362,6 +447,104 @@ function Dashboard() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Spending Over Time */}
+          <div className="mt-6 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
+                Spending Over Time
+              </h2>
+              <div className="flex gap-1 bg-gray-100 dark:bg-zinc-700 rounded-lg p-1">
+                {["7D", "30D", "3M", "6M", "1Y", "All"].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setSpendingTimeFilter(f)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                      spendingTimeFilter === f
+                        ? "bg-white dark:bg-zinc-600 text-gray-800 dark:text-white shadow-sm"
+                        : "text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {spendingOverTimeData.length === 0 ||
+            spendingOverTimeData.every((d) => d.amount === 0) ? (
+              <div className="flex items-center justify-center h-48 text-gray-300 dark:text-zinc-600 text-sm">
+                No data yet
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart
+                  data={spendingOverTimeData}
+                  margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="spendingGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor="#3b82f6"
+                        stopOpacity={0.15}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="#3b82f6"
+                        stopOpacity={0}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e5e7eb"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 11, fill: "#9ca3af" }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#9ca3af" }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `$${v}`}
+                    width={55}
+                  />
+                  <Tooltip
+                    formatter={(value) => [
+                      `$${Number(value).toFixed(2)}`,
+                      "Spent",
+                    ]}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="amount"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fill="url(#spendingGradient)"
+                    dot={false}
+                    activeDot={{ r: 4, fill: "#3b82f6" }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </main>
       </div>
